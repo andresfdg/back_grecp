@@ -1,0 +1,18 @@
+{
+    "name" : "Amaury",
+    "email": "Amaury@gmail.com",
+    "password" : "oceanos1118",
+    "phone" : 3056549,
+    "birthdate": "18/09/1999",
+    "city" : "Bogota",
+    "adress" : "SuCasa"
+}
+{
+    "name": "admin",
+    "email": "admin@gmail.com",
+    "password" : "oceanos1118",
+    "phone" : 786549,
+    "birthdate" : "06/03/1999",
+    "city" : "Canada",
+    "adress" : "London"
+}

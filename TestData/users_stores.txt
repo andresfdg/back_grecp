@@ -1,0 +1,16 @@
+{
+    "name" : "Medina",
+    "email": "Medina@gmail.com",
+    "password" : "oceanos1118",
+    "phone" :3045392167,
+    "city" : "France",
+    "adress" : "SuCasarr"
+}
+{
+    "name" : "jose",
+    "email": "jose@gmail.com",
+    "password" :"oceanos1118",
+    "phone" : 3045392166,
+    "city" : "Bohota",
+    "adress" : "SuCa"
+}

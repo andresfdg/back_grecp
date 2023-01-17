@@ -1,0 +1,6 @@
+{
+    "name" : "tienda_ropa"
+}
+{
+    "name" : "tienda_musica"
+}

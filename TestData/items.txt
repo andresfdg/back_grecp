@@ -1,0 +1,44 @@
+{
+    
+    "name" : "guitarra",
+    "category" : "musica",
+    "owener_store" : 1,
+    "price" : 500,
+    "actual_popularity" : "low",
+    "discount_low": 5,
+    "discount_medium":10,
+    "discount_high":20
+}
+{
+    "id" : 2,
+    "name" : "jean",
+    "category" : "ropa",
+    "owener_store" : 2,
+    "price"  : 100,
+    "actual_popularity"  : "medium",
+    "discount_low" :10,
+    "discount_medium" :12,
+    "discount_high" :25
+}
+{
+    "id"  : 3,
+    "name"  :"bajo",
+    "category"  : "musica",
+    "owener_store" : 1,
+    "price" : 600,
+    "actual_popularity" : "high",
+    "discount_low": 10,
+    "discount_medium":15,
+    "discount_high":30
+}
+{
+    "id" : 4,
+    "name" : "camisa",
+    "category" : "ropa",
+    "owener_store" : 2,
+    "price" : 50,
+    "actual_popularity" : "low",
+    "discount_low": 6,
+    "discount_medium":10,
+    "discount_high":20
+}
