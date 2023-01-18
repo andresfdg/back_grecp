@@ -72,6 +72,7 @@ def get_all_store_items(id:int,db:Session = Depends(get_db), current_user: int =
     items = db.query(ItemDb).filter(ItemDb.owner_store == id ).all()
     
     
+    
 
 
     return items   
@@ -115,40 +116,22 @@ def storegieldorder(id:int,db:Session = Depends(get_db), current_user: int = Dep
 @router.get("/availability/{id}")
 def get_all_store_items(id:int,db:Session = Depends(get_db), current_user: int = Depends(get_user)):
 
+    items = db.query(ItemDb).filter(ItemDb.owner_store == id ).all()
+ 
+    cur.execute(f"""SELECT items.name, items.price, items.category, numericalguiel.id,SUM(orders.quantity) FROM orders LEFT JOIN numericalguiel ON orders.gield_id = numericalguiel.id LEFT JOIN items ON numericalguiel.item = items.id  WHERE numericalguiel.active = True and items.owner_store ={str(id)} GROUP BY items.name, items.price, items.category,numericalguiel.id ORDER BY numericalguiel.id  """)              
+    availability = list(cur.fetchall())
     
-
-    guild = db.query(GuildDb).filter(GuildDb.item == id).filter(GuildDb.active == True).first()
-   
-    print(guild)
-    item = db.query(ItemDb).filter(ItemDb.id == id).first()
-    avalibility = 0
-
-    if not guild:
-        
-        popularity = item.actual_popularity 
-        
-        if popularity == 'low':
-            avalibility = item.quantity_low
-        elif popularity == 'medium':
-            avalibility = item.quantity_medium
-        else:
-            avalibility = item.quantity_high
-    else:
-         cur.execute(f"""SELECT SUM(quantity) FROM orders WHERE orders.gield_id = {str(guild.id)}""")
-         actual_quantity = cur.fetchone()
-         actual_quantity = list(actual_quantity.items())
-         
-         max_quantity = guild.pop_max
-         avalibility = max_quantity - actual_quantity[0][1]
-         
-         print(avalibility)  
-              
-
+    print(items)
+    lista = []
+    for i in availability:
+        lista.append(i)
+    print(lista[1])    
+      
 
                     
 
     
     
-    return avalibility
+    return lista[0]["name"]
 
 
