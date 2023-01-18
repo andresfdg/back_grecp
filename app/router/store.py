@@ -70,6 +70,8 @@ def get_all_store(id:int,db:Session = Depends(get_db), current_user: int = Depen
 def get_all_store_items(id:int,db:Session = Depends(get_db), current_user: int = Depends(get_user)):
 
     items = db.query(ItemDb).filter(ItemDb.owner_store == id ).all()
+    
+    
 
 
     return items   
@@ -108,5 +110,45 @@ def storegieldorder(id:int,db:Session = Depends(get_db), current_user: int = Dep
 
 
 
+
+
+@router.get("/availability/{id}")
+def get_all_store_items(id:int,db:Session = Depends(get_db), current_user: int = Depends(get_user)):
+
+    
+
+    guild = db.query(GuildDb).filter(GuildDb.item == id).filter(GuildDb.active == True).first()
+   
+    print(guild)
+    item = db.query(ItemDb).filter(ItemDb.id == id).first()
+    avalibility = 0
+
+    if not guild:
+        
+        popularity = item.actual_popularity 
+        
+        if popularity == 'low':
+            avalibility = item.quantity_low
+        elif popularity == 'medium':
+            avalibility = item.quantity_medium
+        else:
+            avalibility = item.quantity_high
+    else:
+         cur.execute(f"""SELECT SUM(quantity) FROM orders WHERE orders.gield_id = {str(guild.id)}""")
+         actual_quantity = cur.fetchone()
+         actual_quantity = list(actual_quantity.items())
+         
+         max_quantity = guild.pop_max
+         avalibility = max_quantity - actual_quantity[0][1]
+         
+         print(avalibility)  
+              
+
+
+                    
+
+    
+    
+    return avalibility
 
 
