@@ -36,3 +36,6 @@ def get_item(db:Session = Depends(get_db), current_user: int = Depends(get_user)
     items = db.query(ItemDb).filter(ItemDb.owner_store ==current_user.id ).all()
     
     return items
+
+
+    
