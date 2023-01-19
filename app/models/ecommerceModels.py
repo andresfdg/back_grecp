@@ -29,6 +29,7 @@ class ItemDb(Base):
     owner_store = Column(Integer,  ForeignKey('stores.id'))
     price = Column(Integer, nullable = False)
     description=Column(String)
+    open = Column(Boolean, server_default='False',nullable = False)
     
     ##------------------- discount properties ------------------------
     actual_popularity = Column(String, nullable = False)
