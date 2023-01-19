@@ -71,11 +71,29 @@ def get_all_store_items(id:int,db:Session = Depends(get_db), current_user: int =
 
     items = db.query(ItemDb).filter(ItemDb.owner_store == id ).all()
     
+ 
+    cur.execute(f""" SELECT items.id as item_id ,items.name, items.price, items.category, numericalguiel.id,(numericalguiel.pop_max - SUM(orders.quantity)) as aval FROM orders LEFT JOIN numericalguiel ON orders.gield_id = numericalguiel.id LEFT JOIN items ON numericalguiel.item = items.id  WHERE numericalguiel.active = True and items.owner_store ={str(id)} GROUP BY items.id, items.name, items.price, items.category,numericalguiel.id ORDER BY numericalguiel.id""")              
+    availability = list(cur.fetchall())
+
+    print(availability)
+
+    lista = []
+    for i in items:
+        lista.append({"id":i.id,"name":i.name,"price":i.price,"category":i.category  })
+        
+
+
+    for i in lista:
+        for j in availability:
+            if i["id"] == j["item_id"]:
+                i.update({"availability":j["aval"]})
+               
+    
     
     
 
 
-    return items   
+    return lista   
 
 @router.get("/storeorder")
 def get_current_store_order(db:Session = Depends(get_db), current_user: int = Depends(get_user)):
@@ -116,22 +134,40 @@ def storegieldorder(id:int,db:Session = Depends(get_db), current_user: int = Dep
 @router.get("/availability/{id}")
 def get_all_store_items(id:int,db:Session = Depends(get_db), current_user: int = Depends(get_user)):
 
-    items = db.query(ItemDb).filter(ItemDb.owner_store == id ).all()
- 
-    cur.execute(f"""SELECT items.name, items.price, items.category, numericalguiel.id,SUM(orders.quantity) FROM orders LEFT JOIN numericalguiel ON orders.gield_id = numericalguiel.id LEFT JOIN items ON numericalguiel.item = items.id  WHERE numericalguiel.active = True and items.owner_store ={str(id)} GROUP BY items.name, items.price, items.category,numericalguiel.id ORDER BY numericalguiel.id  """)              
-    availability = list(cur.fetchall())
     
-    print(items)
-    lista = []
-    for i in availability:
-        lista.append(i)
-    print(lista[1])    
+
+
+    #print(availability[0]["name"])
+    #for i in lista:
+     #   for j in availability:
+      #      if j["name"] == i.name:
+       #         i.update({"aval":j["sum"]})
+        #    else:
+         #       i.update({"aval":0})
+
+
+
+
+
+
+    
+    # print(items)
+    
+    #lista = []
+    #for i in items:
+     #   print(i.name)
+
+    #for i in availability:
+        
+     #   i.update({"uno":1})
+      #  lista.append(i)
+    #print(lista)   
       
 
                     
 
     
     
-    return lista[0]["name"]
+    return "lista"
 
 
