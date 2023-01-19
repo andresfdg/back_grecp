@@ -35,8 +35,10 @@ app.include_router(order.router)
 #route is used for item management 
 app.include_router(item.router)
 
+#route is used for store management 
 app.include_router(store.router)
 
+#route is used for store management
 app.include_router(guield.router)
 
 

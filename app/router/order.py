@@ -14,14 +14,18 @@ router = APIRouter()
 
 @router.post("/create_new_order")
 def create_new_order(payload:OrderCreation,db:Session = Depends(get_db),current_user: int = Depends(get_user)):
-
+    #payload contains: item.id, order_quantity
+    
+    #look for the item that the user is buying using yhe payload information
     order_item = db.query(ItemDb).filter(ItemDb.id == payload.item).first()
-        
+    #look for the actual popularity of an item
     popularity = order_item.actual_popularity
-
+    #inicialice variables for dicount and guild population
     dicount = 0
     pop = 0
-
+    
+    
+    #assing values to dicount and pop  
     if popularity == 'low':
         dicount = order_item.discount_low
         pop =  order_item.quantity_low
@@ -30,27 +34,26 @@ def create_new_order(payload:OrderCreation,db:Session = Depends(get_db),current_
         pop =  order_item.quantity_medium
     if popularity == 'high':
         dicount = order_item.discount_high
-        pop =  order_item.quantity_high 
-
+        pop =  order_item.quantity_high
+         
+    #look if there is a exitent guield for the current item
     gremio_validado = db.query(GuildDb).filter(GuildDb.item == payload.item)
-
-    
-
-    #this if is use to comprobate if a gremio exist for the order product
+  
+    #this happen is there is no a guield
     if not gremio_validado.first():
-        gremio = GuildDb(item = payload.item, pop_max=pop )
+        #create a new gield
+        gremio = GuildDb(item = payload.item, quantity_max=pop )
         db.add(gremio)
         db.commit()
         db.refresh(gremio)
-      
 
         new_post = OrderDb(store_id=order_item.owner_store, discount=dicount ,owner_id=current_user.id,gield_id=gremio.id  ,**payload.dict()) 
 
     #if the gremio exist increment the order_number     
     else:   #gre = gremio in database
-        gremio_exist = db.query(GuildDb).filter(GuildDb.item == order_item.id).filter(GuildDb.active == True).first()
+        gremio_exist = db.query(GuildDb).filter(GuildDb.item == order_item.id).filter(GuildDb.active == 'True').first()
         if not gremio_exist:
-            gremio = GuildDb(item = payload.item , pop_max=pop)
+            gremio = GuildDb(item = payload.item , quantity_max=pop)
             db.add(gremio)
             db.commit()
             db.refresh(gremio)
@@ -61,17 +64,16 @@ def create_new_order(payload:OrderCreation,db:Session = Depends(get_db),current_
             actual_quantity = cur.fetchone()
             actual_quantity = list(actual_quantity.items())
             print(actual_quantity[0][1] + payload.quantity)
-            if(actual_quantity[0][1] + payload.quantity > gremio_exist.pop_max):
+            if(actual_quantity[0][1] + payload.quantity > gremio_exist.quantity_max):
                  raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE)
-            elif(actual_quantity[0][1] + payload.quantity < gremio_exist.pop_max):
+            elif(actual_quantity[0][1] + payload.quantity < gremio_exist.quantity_max):
                 gremio_exist.order_number = gremio_exist.order_number + 1
                 new_post = OrderDb(store_id=order_item.owner_store, discount=dicount ,owner_id=current_user.id,gield_id=gremio_exist.id  ,**payload.dict()) 
             else:
-                gremio_exist.active = False
+                gremio_exist.active = 'False'
                 gremio_exist.order_number = gremio_exist.order_number + 1
                 new_post = OrderDb(store_id=order_item.owner_store, discount=dicount ,owner_id=current_user.id,gield_id=gremio_exist.id  ,**payload.dict())    
-                
-       
+                 
         #x = gremio_validado.first()    
         #x.order_number = x.order_number + 1
         #new_post = OrderDb(owner_id=current_user.id,gield_id=x.id  ,**payload.dict())
@@ -83,6 +85,12 @@ def create_new_order(payload:OrderCreation,db:Session = Depends(get_db),current_
     db.refresh(new_post)
 
     return new_post
+
+@router.post("/create_new_guild")
+def create_new_guild(payload:OrderCreation,db:Session = Depends(get_db),current_user: int = Depends(get_user)):
+    
+    
+    return 'hello'
 
 # get all orders
 @router.get("/all_orders")                
@@ -110,7 +118,7 @@ def total(id:int, db:Session = Depends(get_db)):
 
     return count
 
-
+##################?
 @router.get("/prueba/{id}")
 def prueba(id:int):
 

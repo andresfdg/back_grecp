@@ -18,6 +18,8 @@ class UserDb(Base):
     favorite_store = Column(String)
     favorite_item = Column(String)
     type = Column(String,server_default='Person', nullable=False)
+    #guild information
+    active_guilds = Column(Integer, server_default= '0')
 
 class StoreUserDb(Base):
 

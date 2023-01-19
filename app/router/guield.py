@@ -11,16 +11,11 @@ from typing import List
 
 router = APIRouter()
 
-
+##############?
 @router.get("/guieluser")
 def gielduser(db:Session = Depends(get_db),current_user: int = Depends(get_user)):
 
     user_order = db.query(OrderDb).filter(OrderDb.owner == current_user.id).all()
-
-    
-    
-
-
 
     return "helo"
 
