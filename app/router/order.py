@@ -5,6 +5,7 @@ from ..models.ecommerceModels import *
 from ..schemas import *
 from ..oauth2 import *
 from typing import List
+import datetime
 
 
 #routers
@@ -106,7 +107,7 @@ def user_create_new_guild(payload:UserGuildCreation,db:Session = Depends(get_db)
     if (payload.quantity_max >= payload.quantity) and (user.active_guilds <= 5):
         user.active_guilds = user.active_guilds + 1
     else:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE)
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="You can't have more guilds, or too much quantity")
     
     if payload.quantity_max == order_item.quantity_low:
         dicount = order_item.discount_low
@@ -118,19 +119,25 @@ def user_create_new_guild(payload:UserGuildCreation,db:Session = Depends(get_db)
         dicount = order_item.discount_high
         time = order_item.time_guild_high
     else:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE)
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Not an acceptable quantity")
         
-    totalcostc = order_item.price*payload.quantity*(dicount/100) #total cost of the order
+    totalcostc = (order_item.price-(order_item.price*(dicount/100)))*payload.quantity #total cost of the order
     gremio = GuildDb(item = payload.item , quantity_max=payload.quantity_max, life_time= time, actual_quantity=payload.quantity, discount=dicount)
+    
+    new_post = ""
     
     if gremio.actual_quantity == gremio.quantity_max:
         gremio.active = "In process"
+        db.add(gremio)
+        db.commit()
+        db.refresh(gremio)
+        new_post = OrderDb(store_id=order_item.owner_store, discount=dicount ,owner_id=current_user.id,gield_id=gremio.id,totalcost=totalcostc, item=payload.item, quantity = payload.quantity, active="In process")
+    else:
+        db.add(gremio)
+        db.commit()
+        db.refresh(gremio)
+        new_post = OrderDb(store_id=order_item.owner_store, discount=dicount ,owner_id=current_user.id,gield_id=gremio.id,totalcost=totalcostc, item=payload.item, quantity = payload.quantity)
     
-    db.add(gremio)
-    db.commit()
-    db.refresh(gremio)
-    
-    new_post = OrderDb(store_id=order_item.owner_store, discount=dicount ,owner_id=current_user.id,gield_id=gremio.id,totalcost=totalcostc, item=payload.item, quantity = payload.quantity)
     
     db.add(new_post)
     db.commit()
@@ -147,20 +154,23 @@ def user_inter_guild(payload:InterGulid,db:Session = Depends(get_db),current_use
     user = db.query(UserDb).filter(UserDb.id == current_user.id).first()
     
     #verify if quantity is acceptable
+    date_1 = request_guild.date
+    end_date = date_1 + datetime.timedelta(days=request_guild.life_time)
+    print("creation: " + str(date_1))
+    print("end: " + str(end_date))
+    
+    if end_date <= datetime.datetime.now(end_date.tzinfo):
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail='Guild is deprecated')
     
     if (request_guild.quantity_max >= (request_guild.actual_quantity + payload.quantity)) and (user.active_guilds <= 5):
         user.active_guilds = user.active_guilds + 1
         request_guild.actual_quantity = request_guild.actual_quantity + payload.quantity
         request_guild.order_number = request_guild.order_number + 1
-        
-        if request_guild.actual_quantity == request_guild.quantity_max:
-            request_guild.active = "In process"
+        db.commit()
     else:
-        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE)
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail='User can not create more guilds or orders')
         
     totalcostc = (order_item.price-(order_item.price*(request_guild.discount/100)))*payload.quantity #total cost of the order
-    
-    db.commit()
     
     new_post = OrderDb(store_id=order_item.owner_store, discount=request_guild.discount, owner_id=current_user.id,gield_id=request_guild.id,totalcost=totalcostc, item=order_item.id, quantity = payload.quantity)
     
@@ -168,7 +178,20 @@ def user_inter_guild(payload:InterGulid,db:Session = Depends(get_db),current_use
     db.commit()
     db.refresh(new_post)
     
+    if request_guild.actual_quantity == request_guild.quantity_max:
+        request_guild.active = "In process"
+        orders= db.query(OrderDb).filter(OrderDb.gield_id==request_guild.id).all()
+        for i in orders: 
+            i.active = "In process"
+    
     return new_post
+
+@router.post("/send_order")
+def total(id:int, db:Session = Depends(get_db), current_user: int = Depends(get_user)):
+
+    order=db.query(OrderDb).filter(OrderDb.id==id).first()
+
+    return order
 
 # get all orders
 @router.get("/all_orders")                
@@ -218,8 +241,6 @@ def prueba():
 def get_user_orders(db:Session = Depends(get_db), current_user: int = Depends(get_user)):
 
     orders = db.query(OrderDb).filter(OrderDb.owner_id == current_user.id).all()
-
-
 
     return orders
 
