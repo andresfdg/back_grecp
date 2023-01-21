@@ -11,11 +11,8 @@ from typing import List
 router = APIRouter()
 
 #create a order an asigned to a gremio
-
 @router.post("/create_new_order")
 def create_new_order(payload:OrderCreation,db:Session = Depends(get_db),current_user: int = Depends(get_user)):
-    #payload contains: item.id, order_quantity
-    
     #look for the item that the user is buying using yhe payload information
     order_item = db.query(ItemDb).filter(ItemDb.id == payload.item).first()
     #look for the actual popularity of an item
@@ -23,8 +20,7 @@ def create_new_order(payload:OrderCreation,db:Session = Depends(get_db),current_
     #inicialice variables for dicount and guild population
     dicount = 0
     pop = 0
-    
-    
+     
     #assing values to dicount and pop  
     if popularity == 'low':
         dicount = order_item.discount_low
@@ -86,11 +82,93 @@ def create_new_order(payload:OrderCreation,db:Session = Depends(get_db),current_
 
     return new_post
 
-@router.post("/create_new_guild")
-def create_new_guild(payload:OrderCreation,db:Session = Depends(get_db),current_user: int = Depends(get_user)):
+#allows store user to create their own guilds
+@router.post("/store_create_new_guild")
+def store_create_new_guild(payload:StoreGuildCreation,db:Session = Depends(get_db),current_user: int = Depends(get_user)):
     
+    gremio = GuildDb(item = payload.item, quantity_max=payload.quantity_max, life_time= payload.life_time, order_number=0, discount = payload.discount)
+    db.add(gremio)
+    db.commit()
+    db.refresh(gremio)
     
-    return 'hello'
+    return gremio
+
+#allows person user to create their own guilds
+@router.post("/user_create_new_guild")
+def user_create_new_guild(payload:UserGuildCreation,db:Session = Depends(get_db),current_user: int = Depends(get_user)):
+    #look for the item that the user is buying using yhe payload information
+    order_item = db.query(ItemDb).filter(ItemDb.id == payload.item).first()
+    user = db.query(UserDb).filter(UserDb.id == current_user.id).first()
+    #inicialice variables for dicount and guild population
+    dicount=0 #discount of the order
+    time=0 # life time of the guild
+    
+    if (payload.quantity_max >= payload.quantity) and (user.active_guilds <= 5):
+        user.active_guilds = user.active_guilds + 1
+    else:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE)
+    
+    if payload.quantity_max == order_item.quantity_low:
+        dicount = order_item.discount_low
+        time = order_item.time_guild_low
+    elif payload.quantity_max == order_item.quantity_medium:
+        dicount = order_item.discount_medium
+        time = order_item.time_guild_medium
+    elif payload.quantity_max == order_item.quantity_high:
+        dicount = order_item.discount_high
+        time = order_item.time_guild_high
+    else:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE)
+        
+    totalcostc = order_item.price*payload.quantity*(dicount/100) #total cost of the order
+    gremio = GuildDb(item = payload.item , quantity_max=payload.quantity_max, life_time= time, actual_quantity=payload.quantity, discount=dicount)
+    
+    if gremio.actual_quantity == gremio.quantity_max:
+        gremio.active = "In process"
+    
+    db.add(gremio)
+    db.commit()
+    db.refresh(gremio)
+    
+    new_post = OrderDb(store_id=order_item.owner_store, discount=dicount ,owner_id=current_user.id,gield_id=gremio.id,totalcost=totalcostc, item=payload.item, quantity = payload.quantity)
+    
+    db.add(new_post)
+    db.commit()
+    db.refresh(new_post)
+    
+    return new_post
+
+@router.post("/user_inter_guild")
+def user_inter_guild(payload:InterGulid,db:Session = Depends(get_db),current_user: int = Depends(get_user)):
+    #look for the item that the user is buying using yhe payload information
+    request_guild= db.query(GuildDb).filter(GuildDb.id==payload.guild_id).first()
+    order_item = db.query(ItemDb).filter(ItemDb.id == request_guild.item).first()
+    #inicialice variables for dicount and guild population
+    user = db.query(UserDb).filter(UserDb.id == current_user.id).first()
+    
+    #verify if quantity is acceptable
+    
+    if (request_guild.quantity_max >= (request_guild.actual_quantity + payload.quantity)) and (user.active_guilds <= 5):
+        user.active_guilds = user.active_guilds + 1
+        request_guild.actual_quantity = request_guild.actual_quantity + payload.quantity
+        request_guild.order_number = request_guild.order_number + 1
+        
+        if request_guild.actual_quantity == request_guild.quantity_max:
+            request_guild.active = "In process"
+    else:
+        raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE)
+        
+    totalcostc = (order_item.price-(order_item.price*(request_guild.discount/100)))*payload.quantity #total cost of the order
+    
+    db.commit()
+    
+    new_post = OrderDb(store_id=order_item.owner_store, discount=request_guild.discount, owner_id=current_user.id,gield_id=request_guild.id,totalcost=totalcostc, item=order_item.id, quantity = payload.quantity)
+    
+    db.add(new_post)
+    db.commit()
+    db.refresh(new_post)
+    
+    return new_post
 
 # get all orders
 @router.get("/all_orders")                

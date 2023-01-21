@@ -50,9 +50,9 @@ class ItemDb(Base):
     get_time_medium=Column(Integer, server_default='2')# in days
     get_time_high=Column(Integer, server_default='3')# in days
     
-    max_guild_low = Column(Integer, server_default='2')
-    max_guild_medium = Column(Integer, server_default='2')
-    max_guild_high = Column(Integer, server_default='2')
+    time_guild_low = Column(Integer, server_default='2')
+    time_guild_medium = Column(Integer, server_default='2')
+    time_guild_high = Column(Integer, server_default='2')
     
     
 class GuildDb(Base):

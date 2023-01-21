@@ -40,7 +40,25 @@ class Login(BaseModel):
     email: str
     password: str
     type : str
+#--------------------------------------------------guild schemas -----------------------------------------------------------------------------------------
+#schema when user want to create a order info in the payload
+class StoreGuildCreation(BaseModel):
+    item : int
+    quantity_max : int
+    life_time: int
+    discount: int
 
+class UserGuildCreation(BaseModel):
+    item : int
+    quantity : int
+    quantity_max : int
+    life_time: int
+    
+class InterGulid(BaseModel):
+    guild_id: int
+    quantity : int
+    
+    
 #--------------------------------------------------items schemas -----------------------------------------------------------------------------------------
 #schema to create an item
 class CreateItem(BaseModel):
@@ -68,6 +86,7 @@ class ItemPrint(BaseModel):
 class OrderCreation(BaseModel):
     item : int
     quantity : int
+    
 
 #schema to view Order information
 class OrderOut(BaseModel):
