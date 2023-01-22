@@ -128,6 +128,7 @@ def user_create_new_guild(payload:UserGuildCreation,db:Session = Depends(get_db)
     
     if gremio.actual_quantity == gremio.quantity_max:
         gremio.active = "In process"
+        user.active_guilds = user.active_guilds - 1
         db.add(gremio)
         db.commit()
         db.refresh(gremio)
@@ -137,7 +138,6 @@ def user_create_new_guild(payload:UserGuildCreation,db:Session = Depends(get_db)
         db.commit()
         db.refresh(gremio)
         new_post = OrderDb(store_id=order_item.owner_store, discount=dicount ,owner_id=current_user.id,gield_id=gremio.id,totalcost=totalcostc, item=payload.item, quantity = payload.quantity)
-    
     
     db.add(new_post)
     db.commit()
@@ -183,13 +183,18 @@ def user_inter_guild(payload:InterGulid,db:Session = Depends(get_db),current_use
         orders= db.query(OrderDb).filter(OrderDb.gield_id==request_guild.id).all()
         for i in orders: 
             i.active = "In process"
+            user = db.query(UserDb).filter(UserDb.id == i.owner_id).first()
+            user.active_guilds = user.active_guilds - 1 
     
+    db.commit()
+    db.refresh(new_post)
+   
     return new_post
 
 @router.post("/send_order")
-def total(id:int, db:Session = Depends(get_db), current_user: int = Depends(get_user)):
+def total(id:str, db:Session = Depends(get_db), current_user: int = Depends(get_user)):
 
-    order=db.query(OrderDb).filter(OrderDb.id==id).first()
+    order=id
 
     return order
 

@@ -56,7 +56,7 @@ class UserGuildCreation(BaseModel):
     
 class InterGulid(BaseModel):
     guild_id: int
-    quantity : int
+    quantity: int
     
     
 #--------------------------------------------------items schemas -----------------------------------------------------------------------------------------
