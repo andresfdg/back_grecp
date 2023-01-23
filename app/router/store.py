@@ -149,3 +149,14 @@ def get_all_store_items(id:int,db:Session = Depends(get_db), current_user: int =
     return "lista"
 
 
+
+
+@router.get("/items_store")
+
+def stores_items(db:Session = Depends(get_db), current_user: int = Depends(get_user)):
+
+    store = db.query(StoreDb).filter(StoreDb.owner == current_user.id).first()
+
+    items = db.query(ItemDb).filter(ItemDb.owner_store == store.id).all()
+
+    return items

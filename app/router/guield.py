@@ -20,6 +20,16 @@ def gielduser(db:Session = Depends(get_db),current_user: int = Depends(get_user)
     return "helo"
 
 
+@router.get("/guielditem/{id}")
+def guielitem(id:int,db:Session = Depends(get_db),current_user: int = Depends(get_user)):
+
+    guielitems = db.query(GuildDb).filter(GuildDb.item == id).all()
+
+    
+
+    return guielitems
+
+
 
 
 

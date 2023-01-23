@@ -62,6 +62,7 @@ class InterGulid(BaseModel):
 #--------------------------------------------------items schemas -----------------------------------------------------------------------------------------
 #schema to create an item
 class CreateItem(BaseModel):
+    open: bool
     name: str
     category: str
     price: int
