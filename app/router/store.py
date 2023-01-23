@@ -79,7 +79,7 @@ def get_all_store_items(id:int,db:Session = Depends(get_db), current_user: int =
     #save all the items in a new list
     lista = []
     for i in items:
-        lista.append({"id":i.id,"name":i.name,"price":i.price,"category":i.category})
+        lista.append({"id":i.id,"name":i.name,"price":i.price,"category":i.category, "open":i.open})
     
     #assing the avilability to the correct item
     for i in lista:
