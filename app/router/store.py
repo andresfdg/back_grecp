@@ -110,7 +110,7 @@ def store_orders(db:Session = Depends(get_db), current_user: int = Depends(get_u
 @router.get("/storegield")
 def store_gield(db:Session = Depends(get_db), current_user: int = Depends(get_user)):
 
-    cur.execute(f"""SELECT orders.item,orders.gield_id,items.name,items.price,items.discount_low,items.discount_medium,items.discount_high, SUM(orders.quantity) as totalq, COUNT(*) as total_ord   FROM orders  LEFT JOIN items ON orders.item = items.id LEFT JOIN users ON orders.owner_id = users.id WHERE orders.store_id = {str(current_user.id)}  GROUP BY orders.item,orders.gield_id,items.name,items.price,items.discount_low,items.discount_medium,items.discount_high""")
+    cur.execute(f"""SELECT orders.item,orders.gield_id,items.name,items.price,items.discount_low,items.discount_medium,numericalguiel.active,items.discount_high, SUM(orders.quantity) as totalq, COUNT(*) as total_ord   FROM orders  LEFT JOIN items ON orders.item = items.id LEFT JOIN users ON orders.owner_id = users.id LEFT JOIN numericalguiel ON numericalguiel.id = orders.gield_id   WHERE orders.store_id = {str(current_user.id)}  GROUP BY orders.item,orders.gield_id,items.name,items.price,items.discount_low,items.discount_medium,items.discount_high, numericalguiel.active""")
     gields = cur.fetchall()
     return gields
 
