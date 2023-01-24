@@ -162,7 +162,7 @@ def user_inter_guild(payload:InterGulid,db:Session = Depends(get_db),current_use
     if end_date <= datetime.datetime.now(end_date.tzinfo):
         raise HTTPException(status_code=status.HTTP_406_NOT_ACCEPTABLE, detail='Guild is deprecated')
     
-    if (request_guild.quantity_max >= (request_guild.actual_quantity + payload.quantity)) and (user.active_guilds <= 5):
+    if (request_guild.quantity_max >= (request_guild.actual_quantity + payload.quantity)):
         user.active_guilds = user.active_guilds + 1
         request_guild.actual_quantity = request_guild.actual_quantity + payload.quantity
         request_guild.order_number = request_guild.order_number + 1

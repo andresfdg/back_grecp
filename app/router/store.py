@@ -160,3 +160,5 @@ def stores_items(db:Session = Depends(get_db), current_user: int = Depends(get_u
     items = db.query(ItemDb).filter(ItemDb.owner_store == store.id).all()
 
     return items
+
+

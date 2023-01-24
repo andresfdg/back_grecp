@@ -41,4 +41,15 @@ def get_item(db:Session = Depends(get_db), current_user: int = Depends(get_user)
     return items
 
 
+
+@router.get("/item/{id}")
+def get_item(id:int, db:Session = Depends(get_db), current_user: int = Depends(get_user)):
+
+    item = db.query(ItemDb).filter(ItemDb.id == id).first()
+
+    return item
+
+
+
+
     
