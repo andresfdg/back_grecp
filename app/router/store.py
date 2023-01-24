@@ -114,6 +114,31 @@ def store_gield(db:Session = Depends(get_db), current_user: int = Depends(get_us
     gields = cur.fetchall()
     return gields
 
+@router.get("/storegield2")
+def store_gield(db:Session = Depends(get_db), current_user: int = Depends(get_user)):
+    
+    store = db.query(StoreDb).filter(StoreDb.owner== current_user.id).first()
+    orders = db.query(OrderDb).filter(OrderDb.store_id == store.id).all()
+    gremios = []
+    guilds_id =[]
+    counter = False
+    
+    
+    for i in orders:
+        for j in guilds_id:
+            if i.gield_id == j:
+                counter =True
+                
+        if counter==False: 
+            guilds_id.append(i.gield_id)
+            gremioact = db.query(GuildDb).filter(GuildDb.id == i.gield_id).first()
+            itemact = db.query(ItemDb).filter(ItemDb.id == i.item).first()
+            gremios.append({"name":itemact.name, "price":itemact.price,"id":gremioact.id, "total_ord":gremioact.order_number, "stade": gremioact.active})
+        
+        counter=False
+        
+    return gremios
+
 ################??
 @router.get("/storegieldorder/{id}")
 def storegieldorder(id:int,db:Session = Depends(get_db), current_user: int = Depends(get_user)):
@@ -152,13 +177,11 @@ def get_all_store_items(id:int,db:Session = Depends(get_db), current_user: int =
 
 
 @router.get("/items_store")
-
 def stores_items(db:Session = Depends(get_db), current_user: int = Depends(get_user)):
-
     store = db.query(StoreDb).filter(StoreDb.owner == current_user.id).first()
-
     items = db.query(ItemDb).filter(ItemDb.owner_store == store.id).all()
-
     return items
+
+
 
 
