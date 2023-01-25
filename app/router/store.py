@@ -143,7 +143,7 @@ def store_gield(db:Session = Depends(get_db), current_user: int = Depends(get_us
 @router.get("/storegieldorder/{id}")
 def storegieldorder(id:int,db:Session = Depends(get_db), current_user: int = Depends(get_user)):
 
-    cur.execute(f"""SELECT item,quantity,discount,name,email,phone, city,adress FROM orders LEFT JOIN users ON orders.owner_id = users.id   WHERE orders.gield_id = {str(id)} """)
+    cur.execute(f"""SELECT item,quantity,discount,name,email,phone,orders.id as id,orders.active, city,adress FROM orders LEFT JOIN users ON orders.owner_id = users.id   WHERE orders.gield_id = {str(id)} """)
     users = cur.fetchall()
     return users
 
@@ -183,5 +183,17 @@ def stores_items(db:Session = Depends(get_db), current_user: int = Depends(get_u
     return items
 
 
+@router.post("/send")
+def send(payload:send, db:Session = Depends(get_db), current_user: int = Depends(get_user)):
 
+    order = db.query(OrderDb).filter(OrderDb.id == payload.id).first()
+
+    order.active = "send"
+
+    db.commit()
+    db.refresh(order)
+
+
+
+    return "actualizado"
 

@@ -110,4 +110,8 @@ class StoreCreate(BaseModel):
   
 
 
+class send(BaseModel):
+
+    id:int
+
 
