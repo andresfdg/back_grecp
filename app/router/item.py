@@ -7,7 +7,11 @@ from ..schemas import *
 from ..oauth2 import *
 from typing import List
 
-router = APIRouter()
+router = APIRouter(
+
+tags=["Item"]
+
+)
 
 # create new item
 @router.post("/item/create", response_model=ItemPrint)

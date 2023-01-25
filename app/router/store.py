@@ -9,7 +9,11 @@ from typing import List
 
 
 
-router = APIRouter()
+router = APIRouter(
+
+tags=["Store"]
+
+)
 
 #create a new store
 @router.post("/store/create")

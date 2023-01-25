@@ -9,7 +9,11 @@ from typing import List
 
 
 
-router = APIRouter()
+router = APIRouter(
+
+tags=["Guild"]
+
+)
 
 ##############?
 @router.get("/guieluser")

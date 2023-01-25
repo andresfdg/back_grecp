@@ -9,7 +9,10 @@ import datetime
 
 
 #routers
-router = APIRouter()
+router = APIRouter(
+
+    tags=["Orders"]
+)
 
 #create a order an asigned to a gremio
 @router.post("/create_new_order")

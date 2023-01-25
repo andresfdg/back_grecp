@@ -5,7 +5,11 @@ from ..models.user import *
 from ..schemas import *
 from ..oauth2 import *
 
-router = APIRouter()
+router = APIRouter(
+
+tags=["Auth"]
+
+)
 
 #allows the user to login
 @router.post('/login')

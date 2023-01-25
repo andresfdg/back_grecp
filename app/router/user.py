@@ -10,7 +10,10 @@ from passlib.context import CryptContext
 #calls CryptContext and allows to create hash and incriptate data
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-router = APIRouter()
+router = APIRouter(
+
+   tags=["User"] 
+)
 
 # create new user
 @router.post("/user/create", response_model=UserPrint)
