@@ -69,4 +69,7 @@ def infouser(db:Session = Depends(get_db),current_user: int = Depends(get_user))
 
     return user
 
+@router.get("/")
+def hola():
+    return "welcome"
 
