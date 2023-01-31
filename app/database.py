@@ -5,9 +5,9 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 
 #database conection
-conn = psycopg2.connect(host='ec2-3-209-124-113.compute-1.amazonaws.com',database='d75mds7f270q2n',port='5432', user='knctyimjqmxfhx',password='13188ab683d7b133ec193c07d5f0f161c72fb10d0ec0032f2bf5581863b7c85b', cursor_factory=RealDictCursor)
+conn = psycopg2.connect(host='ec2-34-201-95-176.compute-1.amazonaws.com',database='dba7424k8vok5v',port='5432', user='ffkkeppylkfbeq',password='d6a693e56d0e924cfe1d49ef69b8fa69cc2dccd546c2f8156dc27d09fa9403f6', cursor_factory=RealDictCursor)
 cur = conn.cursor()
-SQLALCHEMY_DATABASE_URL = "postgresql://knctyimjqmxfhx:13188ab683d7b133ec193c07d5f0f161c72fb10d0ec0032f2bf5581863b7c85b@ec2-3-209-124-113.compute-1.amazonaws.com/d75mds7f270q2n"
+SQLALCHEMY_DATABASE_URL = "postgresql://ffkkeppylkfbeq:d6a693e56d0e924cfe1d49ef69b8fa69cc2dccd546c2f8156dc27d09fa9403f6@ec2-34-201-95-176.compute-1.amazonaws.com/dba7424k8vok5v"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
